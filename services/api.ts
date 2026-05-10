@@ -1,6 +1,6 @@
 import { User, Patient, VitalSign, PatientCategory } from '../types';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const api = {
   async login(credentials: any): Promise<{ access: string; user: User }> {
