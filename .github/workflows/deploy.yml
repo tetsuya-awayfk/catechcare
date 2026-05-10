@@ -16,7 +16,7 @@ jobs:
           python-version: '3.11'
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
       - name: Run Tests
         env:
           DATABASE_URL: sqlite:///db.sqlite3
