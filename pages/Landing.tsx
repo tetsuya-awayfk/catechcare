@@ -142,40 +142,39 @@ const Landing: React.FC = () => {
         <div className="absolute bottom-20 left-20 w-72 h-72 bg-blue-600/20 blur-[80px] rounded-full pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-white/40 dark:border-zinc-700/50 mb-10 shadow-xl shadow-blue-500/10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-white/40 dark:border-zinc-700/50 mb-12 shadow-2xl shadow-blue-500/10 animate-in fade-in slide-in-from-bottom-8 duration-700">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#022FFC] dark:bg-teal-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-[#022FFC] dark:bg-teal-400"></span>
             </span>
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-[#022FFC] dark:text-teal-400">Secure Medical Node Online</span>
+            <span className="text-xs font-black uppercase tracking-[0.25em] text-[#022FFC] dark:text-teal-400">Secure Medical Node Online</span>
           </div>
           
-          <h1 className="text-6xl md:text-8xl lg:text-[6rem] font-black tracking-tighter mb-8 leading-[1.1] animate-in fade-in zoom-in-95 duration-1000 delay-100">
+          <h1 className="text-6xl md:text-[7rem] lg:text-[8rem] font-black tracking-tighter mb-10 leading-[0.95] animate-in fade-in zoom-in-95 duration-1000 delay-100 drop-shadow-sm">
             Intelligent <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#022FFC] via-blue-500 to-teal-400">
               Health Monitoring
             </span>
           </h1>
           
-          <div className="max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 font-semibold leading-relaxed mb-4">
+          <div className="max-w-3xl mx-auto mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-semibold leading-relaxed mb-6 tracking-tight">
               An intelligent health monitoring and data management system that enables real-time tracking of patient vital signs — integrating sensors, microcontrollers, and a secure database into one seamless interface.
             </p>
-            <p className="text-base md:text-lg text-gray-500 dark:text-gray-500 font-medium leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto">
               Designed for Computer Arts and Technological College, Inc., empowering medical personnel with efficient health record management and long-term patient monitoring.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300 w-full px-4 sm:px-0">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300 w-full px-4 sm:px-0">
             <button 
               onClick={handleNavigate}
-              className="w-full sm:w-auto px-10 py-5 bg-[#022FFC] text-white font-black rounded-2xl hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-blue-500/30 text-sm uppercase tracking-widest group"
+              className="w-full sm:w-auto px-12 py-5 bg-[#022FFC] text-white font-black rounded-3xl hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-4 shadow-[0_0_40px_rgba(2,47,252,0.4)] hover:shadow-[0_0_60px_rgba(2,47,252,0.6)] text-sm uppercase tracking-[0.2em] group"
             >
-              Access Secure Portal <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
+              Access Secure Portal <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
             </button>
           </div>
         </div>
-
       </div>
 
       {/* Features Section */}
