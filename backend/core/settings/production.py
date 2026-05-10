@@ -29,6 +29,8 @@ DATABASES = {
     )
 }
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Storage (Cloudflare R2 via django-storages)
 if os.environ.get("AWS_S3_ENDPOINT_URL"):
     STORAGES = {
@@ -42,6 +44,13 @@ if os.environ.get("AWS_S3_ENDPOINT_URL"):
                 "region_name": "auto",
             },
         },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    # Use Whitenoise for static files if no external storage is defined
+    STORAGES = {
         "staticfiles": {
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
