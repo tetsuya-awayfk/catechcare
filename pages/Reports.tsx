@@ -44,9 +44,17 @@ const Reports: React.FC = () => {
           "PATIENT ID", "NAME", "COURSE", "YEAR", "HR", "BP", "B.T.", "SpO2", "DATE EXAMINED", "STATUS", "EXAMINED BY"
       ];
       
-      // 2) Map data to rows based on category requirement
-      const rows = reportData.map(record => {
-          const formattedDate = new Date(record.recorded_at).toLocaleDateString('en-US');
+      // 2) Sort data sequentially by patient_id, then chronologically by date
+      const sortedData = [...reportData].sort((a, b) => {
+          if (a.patient_id_string !== b.patient_id_string) {
+              return (a.patient_id_string || '').localeCompare(b.patient_id_string || '');
+          }
+          return new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime();
+      });
+
+      // 3) Map data to rows based on category requirement
+      const rows = sortedData.map(record => {
+          const formattedDate = new Date(record.recorded_at).toLocaleString('en-US');
           const statusStr = record.is_alert ? "NEED CHECKING" : "NORMAL";
           const bpStr = `${record.blood_pressure_systolic}/${record.blood_pressure_diastolic}`;
           

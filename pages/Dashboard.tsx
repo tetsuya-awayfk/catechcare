@@ -222,6 +222,9 @@ const Dashboard: React.FC = () => {
 
     try {
       await api.addVitals(data);
+      if (isConnected) {
+        sendCommand('RESET_LCD');
+      }
       setShowVitalCheckModal(false);
       setShowToast(true);
       fetchDashboardData(); // Refresh data

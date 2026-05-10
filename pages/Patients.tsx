@@ -419,6 +419,9 @@ const Patients: React.FC<PatientsProps> = ({ user }) => {
 
     try {
       await api.addVitals(data);
+      if (isConnected) {
+        sendCommand('RESET_LCD');
+      }
       setShowRegisterModal(false);
       triggerToast('Record Synchronized Successfully');
       fetchPatients();
@@ -456,6 +459,9 @@ const Patients: React.FC<PatientsProps> = ({ user }) => {
 
     try {
       await api.addVitals(data);
+      if (isConnected) {
+        sendCommand('RESET_LCD');
+      }
       setShowVitalCheckModal(false);
       triggerToast('Record Synchronized Successfully');
       refreshAlarms(); // Immediately update notification bell

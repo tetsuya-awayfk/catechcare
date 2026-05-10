@@ -80,14 +80,23 @@ bool mlx90614Found = false;
 
 // ========== CUSTOM LCD CHARACTERS ==========
 byte heartChar[8] = {
-  0b00000,
-  0b01010,
-  0b11111,
-  0b11111,
-  0b11111,
-  0b01110,
-  0b00100,
-  0b00000
+  0b00000, 0b01010, 0b11111, 0b11111,
+  0b11111, 0b01110, 0b00100, 0b00000
+};
+
+byte bpChar[8] = {
+  0b00000, 0b01110, 0b10001, 0b10101,
+  0b10101, 0b10001, 0b01110, 0b00000
+};
+
+byte dropChar[8] = {
+  0b00100, 0b00100, 0b01010, 0b01010,
+  0b10001, 0b10001, 0b10001, 0b01110
+};
+
+byte tempChar[8] = {
+  0b00100, 0b01010, 0b01010, 0b01110,
+  0b01110, 0b11111, 0b11111, 0b01110
 };
 
 // ==========================================
@@ -103,6 +112,9 @@ void setup() {
   lcd.init();
   lcd.backlight();
   lcd.createChar(0, heartChar);
+  lcd.createChar(1, bpChar);
+  lcd.createChar(2, dropChar);
+  lcd.createChar(3, tempChar);
   
   lcd.clear();
   lcd.setCursor(1, 0);
@@ -162,6 +174,9 @@ void loop() {
     else if (command.startsWith("SET_BP:")) {
       handleSetBP(command.substring(7));
     }
+    else if (command == "RESET_LCD") {
+      handleResetLCD();
+    }
     else {
       Serial.println("{\"error\":\"Unknown command: " + command + "\"}");
     }
@@ -174,6 +189,10 @@ void loop() {
 
 void handleConnect() {
   Serial.println("{\"status\":\"connected\"}");
+  handleResetLCD();
+}
+
+void handleResetLCD() {
   lcdHR   = "-- bpm";
   lcdBP   = "--/-- mmHg";
   lcdSpO2 = "--%";
@@ -348,16 +367,19 @@ void updateLCD() {
   
   // Row 1 — Blood Pressure
   lcd.setCursor(0, 1);
-  lcd.print("  BP:   ");
+  lcd.write(byte(1));  // BP icon
+  lcd.print(" BP:   ");
   lcd.print(lcdBP);
   
   // Row 2 — Oxygen Saturation
   lcd.setCursor(0, 2);
-  lcd.print("  SpO2: ");
+  lcd.write(byte(2));  // Drop icon
+  lcd.print(" SpO2: ");
   lcd.print(lcdSpO2);
   
   // Row 3 — Body Temperature
   lcd.setCursor(0, 3);
-  lcd.print("  TEMP: ");
+  lcd.write(byte(3));  // Temp icon
+  lcd.print(" TEMP: ");
   lcd.print(lcdTemp);
 }
