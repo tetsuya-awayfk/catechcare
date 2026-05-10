@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./backend
+    command: gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+    env_file: .env.production
+    expose:
+      - 8000
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - web
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
+  redis:
+    image: redis:alpine
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

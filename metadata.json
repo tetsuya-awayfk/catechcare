@@ -1,0 +1,5 @@
+{
+  "name": "CATechCare | Integrated Vital Signs Monitoring System",
+  "description": "A clinical-grade vital signs monitoring system with a Django REST Framework backend, PostgreSQL database, and role-based access control for school clinics.",
+  "requestFramePermissions": []
+}
