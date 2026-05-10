@@ -2,7 +2,7 @@ from .base import *
 import os
 import dj_database_url
 
-DEBUG = False
+DEBUG = True
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 ALLOWED_HOSTS = ['api.catechcare.com', 'catechcare-backend.onrender.com', 'localhost', '127.0.0.1', 'catechcare.onrender.com']
 
