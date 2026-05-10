@@ -1,6 +1,7 @@
 import { User, Patient, VitalSign, PatientCategory } from '../types';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Hardcoded for production to bypass Vercel environment variable build issues
+const API_URL = import.meta.env.DEV ? '/api' : 'https://catechcare.onrender.com/api';
 
 export const api = {
   async login(credentials: any): Promise<{ access: string; user: User }> {
