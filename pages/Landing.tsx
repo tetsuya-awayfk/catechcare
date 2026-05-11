@@ -86,7 +86,7 @@ const Landing: React.FC = () => {
       address: "Biga, Magallenes, Sorsogon",
       course: "BS in Computer Engineering",
       hobbies: "Gym, Travel, Eating",
-      interests: "Embedded Systems, Internet of Things"
+      interests: "Quality Assurance, Documentation"
     },
     { 
       name: "Marl Joshua Oliver", 
@@ -94,7 +94,7 @@ const Landing: React.FC = () => {
       image: "/dev3.png",
       address: "Camalig, Daraga, Albay",
       course: "BS in Computer Engineering",
-      hobbies: "Digital Art, Reading, Music",
+      hobbies: "Mobile Games, Music",
       interests: "Human-Computer Interaction, Web Design"
     },
     { 
@@ -104,7 +104,7 @@ const Landing: React.FC = () => {
       address: "Legazpi City, Albay",
       course: "BS in Computer Engineering",
       hobbies: "Algorithmic Puzzles, Cycling, Movies",
-      interests: "Database Optimization, Cybersecurity"
+      interests: "Hardware Integration, Embedded Systems"
     }
   ];
 
