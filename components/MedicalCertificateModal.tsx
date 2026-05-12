@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { X, Download, Printer } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { api } from '../services/api';
 
 // Folio landscape: 13in × 8.5in at 96dpi
 const CERT_W = 1248; // 13 * 96
@@ -223,6 +224,12 @@ const MedicalCertificateModal: React.FC<Props> = ({ patient, onClose }) => {
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'in', format: [8.5, 13] });
     pdf.addImage(imgData, 'PNG', 0, 0, 13, 8.5);
     pdf.save(`MedCert_${(patient.last_name || 'Patient').toUpperCase()}_${today.toISOString().split('T')[0]}.pdf`);
+    
+    try {
+      await api.logPatientAction(patient.patient_id || patient.id, 'Printed Certificate', 'Downloaded PDF');
+    } catch (e) {
+      console.error('Failed to log action', e);
+    }
   };
 
   const handlePrint = async () => {
@@ -248,6 +255,12 @@ const MedicalCertificateModal: React.FC<Props> = ({ patient, onClose }) => {
       pdf.autoPrint();
       const pdfBlobUrl = pdf.output('bloburl') as any;
       window.open(pdfBlobUrl.toString(), '_blank');
+      
+      try {
+        await api.logPatientAction(patient.patient_id || patient.id, 'Printed Certificate', 'Printed directly');
+      } catch (e) {
+        console.error('Failed to log action', e);
+      }
     } catch (error) {
       console.error('Failed to generate PDF for printing:', error);
     } finally {

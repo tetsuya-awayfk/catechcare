@@ -14,6 +14,9 @@ import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import { AlarmProvider } from './AlarmContext';
 import { HardwareProvider } from './HardwareContext';
+import { api } from './services/api';
+
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -45,10 +48,66 @@ const App: React.FC = () => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (user) {
+      try { await api.logout(); } catch(e) {}
+    }
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
+
+  // Idle timeout & unload
+  useEffect(() => {
+    if (!user) return;
+
+    let idleTimer: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        // Force logout due to inactivity
+        alert('Session expired due to 10 minutes of inactivity.');
+        handleLogout();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    // Attach event listeners for user activity
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    
+    // Initial start
+    resetTimer();
+
+    // beforeunload hook to log out on tab close
+    const handleUnload = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Use keepalive to ensure request finishes even if tab closes
+        const API_URL = import.meta.env.DEV ? '/api' : 'https://catechcare.onrender.com/api';
+        fetch(`${API_URL}/auth/logout/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          keepalive: true
+        }).catch(() => {});
+      }
+    };
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+      window.removeEventListener('beforeunload', handleUnload);
+    };
+  }, [user]);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 

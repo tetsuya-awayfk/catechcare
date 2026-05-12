@@ -189,5 +189,42 @@ export const api = {
       throw new Error(errorMessage);
     }
     return response.json();
+  },
+
+  async logPatientAction(patientId: string, actionName: string, details: string = '') {
+    const response = await fetch(`${API_URL}/patients/${patientId}/log_action/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ action: actionName, details })
+    });
+    if (!response.ok) throw new Error('Failed to log action');
+    return response.json();
+  },
+
+  async logout() {
+    const response = await fetch(`${API_URL}/auth/logout/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.ok;
+  },
+
+  async logSystemAction(actionName: string, details: string = '') {
+    const response = await fetch(`${API_URL}/log-system-action/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ action: actionName, details })
+    });
+    if (!response.ok) throw new Error('Failed to log system action');
+    return response.json();
   }
 };

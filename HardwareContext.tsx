@@ -82,6 +82,19 @@ export const HardwareProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       try {
         await port.open({ baudRate: 115200 });
+        
+        // Toggle DTR/RTS to cleanly reset ESP32 upon connection. 
+        // This resolves the SpO2 sensor initialization issue where it hangs on first connect.
+        try {
+          await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+          await new Promise(resolve => setTimeout(resolve, 200));
+          await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+          
+          // Wait 2 seconds for the ESP32 to fully reboot and initialize sensors
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (signalErr) {
+          console.warn('Failed to set DTR/RTS signals. Continuing anyway.', signalErr);
+        }
       } catch (e: any) {
         if (e.message.includes('already open')) {
            console.log('Port is already open, continuing...');

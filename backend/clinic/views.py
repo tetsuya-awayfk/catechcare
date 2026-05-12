@@ -22,6 +22,25 @@ class IsDoctorOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role in [User.Role.DOCTOR, User.Role.ADMIN]
 
+class SystemLogView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        action_name = request.data.get('action')
+        details = request.data.get('details', '')
+        if not action_name:
+            return Response({'error': 'action is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from .models import ActionLog
+        ActionLog.objects.create(
+            user=request.user,
+            action=action_name,
+            entity_type='System',
+            entity_id='N/A',
+            details=details
+        )
+        return Response({'success': True})
+
 class PatientViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -79,7 +98,9 @@ class PatientViewSet(viewsets.ViewSet):
             fields['course'] = data.get('course')
             fields['year_level'] = data.get('year_level')
             
-        patient = Model.objects.create(patient_id=inst_id, **fields)
+        patient = Model(**fields)
+        patient.last_modified_by = request.user if request.user.is_authenticated else None
+        patient.save()
         
         # Inject default baseline vital record so the patient immediately appears in Dashboard 'New Encounters'
         if category == 'STUDENT': VitalModel = StudentVital
@@ -181,6 +202,7 @@ class PatientViewSet(viewsets.ViewSet):
 
         serializer = PatientSerializer(patient, data=data, partial=True)
         if serializer.is_valid():
+            patient.last_modified_by = request.user if request.user.is_authenticated else None
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
@@ -196,6 +218,32 @@ class PatientViewSet(viewsets.ViewSet):
                 patient.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'])
+    def log_action(self, request, pk=None):
+        action_name = request.data.get('action')
+        details = request.data.get('details', '')
+        if not action_name:
+            return Response({'error': 'action is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        patient = None
+        for Model in [Student, TeachingStaff, NonTeachingStaff, PatientArchive]:
+            patient = Model.objects.filter(patient_id=pk).first()
+            if patient:
+                break
+        
+        if not patient:
+            return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+        from .models import ActionLog
+        ActionLog.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            action=action_name,
+            entity_type=patient.__class__.__name__,
+            entity_id=patient.patient_id,
+            details=details
+        )
+        return Response({'success': True})
 
 
 

@@ -117,6 +117,8 @@ const Reports: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      api.logSystemAction('Downloaded CSV', `Exported clinical records for ${category} from ${startDate} to ${endDate}`).catch(console.error);
   };
 
   return (

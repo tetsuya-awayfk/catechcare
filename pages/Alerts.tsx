@@ -30,19 +30,27 @@ const Alerts: React.FC = () => {
       const data = await api.getAlarms();
       // Map VitalSignRecord to Alert UI format
       const mappedAlerts = data.map((v: any) => {
-        let severity = 'low';
+        let severity = 'Low';
         let msgs = [];
+        let maxSeverityValue = 0; // 0=Low, 1=Medium, 2=High, 3=Critical, 4=Error
         
-        if (v.heart_rate < 60 || v.heart_rate > 100) { msgs.push(`HR: ${v.heart_rate} BPM`); severity = 'high'; }
-        if (v.blood_pressure_systolic > 120 || v.blood_pressure_systolic < 90 || v.blood_pressure_diastolic > 80 || v.blood_pressure_diastolic < 60) { msgs.push(`BP: ${v.blood_pressure_systolic}/${v.blood_pressure_diastolic}`); severity = 'high'; }
-        if (v.oxygen_saturation < 95) { msgs.push(`SpO2: ${v.oxygen_saturation}%`); severity = 'high'; }
+        const setSeverity = (level: string, value: number) => {
+          if (value > maxSeverityValue) {
+            maxSeverityValue = value;
+            severity = level;
+          }
+        };
+
+        if (v.heart_rate < 60 || v.heart_rate > 100) { msgs.push(`HR: ${v.heart_rate} BPM`); setSeverity('High', 2); }
+        if (v.blood_pressure_systolic > 120 || v.blood_pressure_systolic < 90 || v.blood_pressure_diastolic > 80 || v.blood_pressure_diastolic < 60) { msgs.push(`BP: ${v.blood_pressure_systolic}/${v.blood_pressure_diastolic}`); setSeverity('High', 2); }
+        if (v.oxygen_saturation < 95) { msgs.push(`SpO2: ${v.oxygen_saturation}%`); setSeverity('Critical', 3); }
         
         // Temperature severity: 36.5-37.5 Normal, 38-39 High, 40-42 Critical, Beyond = Error
         const temp = v.body_temperature;
-        if (temp < 36.5) { msgs.push(`Temp: ${temp}°C (Low)`); severity = severity === 'high' ? 'high' : 'medium'; }
-        else if (temp >= 38 && temp <= 39) { msgs.push(`Temp: ${temp}°C (High)`); severity = 'high'; }
-        else if (temp >= 40 && temp <= 42) { msgs.push(`Temp: ${temp}°C (Critical)`); severity = 'high'; }
-        else if (temp > 42) { msgs.push(`Temp: ${temp}°C (Error)`); severity = 'high'; }
+        if (temp < 36.5) { msgs.push(`Temp: ${temp}°C (Low)`); setSeverity('Low', 0); }
+        else if (temp >= 38 && temp < 40) { msgs.push(`Temp: ${temp}°C (High)`); setSeverity('High', 2); }
+        else if (temp >= 40 && temp <= 42) { msgs.push(`Temp: ${temp}°C (Critical)`); setSeverity('Critical', 3); }
+        else if (temp > 42) { msgs.push(`Temp: ${temp}°C (Error)`); setSeverity('Error', 4); }
 
         return {
           id: v.id.toString(),
@@ -53,6 +61,10 @@ const Alerts: React.FC = () => {
           isAcknowledged: v.is_acknowledged
         };
       });
+      
+      const severityOrder: any = { 'Error': 0, 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4 };
+      mappedAlerts.sort((a: any, b: any) => severityOrder[a.severity] - severityOrder[b.severity]);
+      
       setAlerts(mappedAlerts);
     } catch (error) {
       console.error("Failed to fetch alarms", error);
@@ -89,10 +101,12 @@ const Alerts: React.FC = () => {
     } catch(e) { triggerToast('Failed to acknowledge all'); }
   };
 
-  const severityStyles = {
-    high: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border-rose-100 dark:border-rose-900/30',
-    medium: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100 dark:border-amber-900/30',
-    low: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-100 dark:border-blue-900/30',
+  const severityStyles: any = {
+    Error: 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 border-purple-100 dark:border-purple-900/30',
+    Critical: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border-rose-100 dark:border-rose-900/30',
+    High: 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400 border-orange-100 dark:border-orange-900/30',
+    Medium: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100 dark:border-amber-900/30',
+    Low: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-100 dark:border-blue-900/30',
   };
 
   return (
@@ -134,7 +148,9 @@ const Alerts: React.FC = () => {
             <p className="text-gray-500 font-medium">No active alerts requiring attention.</p>
           </div>
         ) : (
-          alerts.map((alert) => (
+          alerts
+            .filter((alert) => activeSeverityFilter ? alert.severity === activeSeverityFilter : true)
+            .map((alert) => (
             <div 
               key={alert.id}
               className={`
@@ -147,7 +163,7 @@ const Alerts: React.FC = () => {
                   h-14 w-14 rounded-2xl flex items-center justify-center shrink-0
                   ${severityStyles[alert.severity]}
                 `}>
-                  <ShieldAlert size={28} className={!alert.isAcknowledged && alert.severity === 'high' ? 'animate-pulse' : ''} />
+                  <ShieldAlert size={28} className={!alert.isAcknowledged && (alert.severity === 'Critical' || alert.severity === 'Error') ? 'animate-pulse' : ''} />
                 </div>
                 
                 <div className="flex-1 min-w-0">
@@ -207,7 +223,7 @@ const Alerts: React.FC = () => {
                 <div className="space-y-3">
                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Severity Levels</p>
                    <div className="flex flex-wrap gap-2">
-                     {['High', 'Medium', 'Low'].map(lvl => (
+                     {['Error', 'Critical', 'High', 'Medium', 'Low'].map(lvl => (
                        <button 
                           key={lvl} 
                           onClick={() => setActiveSeverityFilter(activeSeverityFilter === lvl ? null : lvl)}

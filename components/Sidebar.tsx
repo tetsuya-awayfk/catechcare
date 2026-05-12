@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { User } from '../types';
 import { NAVIGATION_ITEMS } from '../constants';
 import { LogOut, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
+import { api } from '../services/api';
 
 interface SidebarProps {
   user: User;
@@ -16,8 +17,13 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isCollapsed, onToggle
   const [showLogoutModal, setShowLogoutModal] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
     setIsLoggingOut(true);
+    try {
+      await api.logout();
+    } catch (e) {
+      console.error('Logout API failed', e);
+    }
     setTimeout(() => {
       onLogout();
       setIsLoggingOut(false);

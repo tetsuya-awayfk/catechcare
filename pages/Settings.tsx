@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User } from '../types';
 import { Shield, Save, AlertTriangle, CheckCircle2, Thermometer, Activity, Heart, Droplet } from 'lucide-react';
+import { api } from '../services/api';
 
 interface SettingsProps {
   user: User;
@@ -74,6 +75,7 @@ const Settings: React.FC<SettingsProps> = ({ user }) => {
       saveThresholds(thresholds);
       setIsSaving(false);
       setShowSuccess(true);
+      api.logSystemAction('Changed Thresholds', 'Updated local clinical threshold alarm limits').catch(console.error);
       setTimeout(() => setShowSuccess(false), 3000);
     }, 1200);
   };

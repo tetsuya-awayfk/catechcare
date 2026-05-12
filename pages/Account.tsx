@@ -55,6 +55,8 @@ const Account: React.FC<AccountProps> = ({ user, onUpdateUser }) => {
       setNewPassword('');
       setConfirmPassword('');
       
+      api.logSystemAction('Account Update', 'Updated profile information or security keys').catch(console.error);
+      
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err: any) {
