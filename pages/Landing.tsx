@@ -95,7 +95,7 @@ const Landing: React.FC = () => {
       address: "Camalig, Daraga, Albay",
       course: "BS in Computer Engineering",
       hobbies: "Mobile Games, Music",
-      interests: "Human-Computer Interaction, Web Design"
+      interests: "Hardware Integration, Embedded Systems"
     },
     { 
       name: "Arjie B. Mirabite", 
@@ -103,7 +103,7 @@ const Landing: React.FC = () => {
       image: "/dev4.png",
       address: "Legazpi City, Albay",
       course: "BS in Computer Engineering",
-      hobbies: "Algorithmic Puzzles, Cycling, Movies",
+      hobbies: "Rides, Basketball, Movies",
       interests: "Hardware Integration, Embedded Systems"
     }
   ];
