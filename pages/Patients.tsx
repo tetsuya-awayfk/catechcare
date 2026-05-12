@@ -90,6 +90,8 @@ const Patients: React.FC<PatientsProps> = ({ user }) => {
     setGatheringStep('TEMP');
     setLiveTemp('');
     prevHardwareTimestamp.current = hardwareData?.timestamp || 0;
+    // Small delay to let ESP32 fully finish SpO2 processing before requesting temp
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await sendCommand('GET_TEMP');
   };
 

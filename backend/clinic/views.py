@@ -31,14 +31,18 @@ class SystemLogView(views.APIView):
         if not action_name:
             return Response({'error': 'action is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        from .models import ActionLog
-        ActionLog.objects.create(
-            user=request.user,
-            action=action_name,
-            entity_type='System',
-            entity_id='N/A',
-            details=details
-        )
+        try:
+            from .models import ActionLog
+            ActionLog.objects.create(
+                user=request.user,
+                action=action_name,
+                entity_type='System',
+                entity_id='N/A',
+                details=details
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f'ActionLog tracking failed (non-critical): {e}')
         return Response({'success': True})
 
 class PatientViewSet(viewsets.ViewSet):
@@ -235,14 +239,17 @@ class PatientViewSet(viewsets.ViewSet):
         if not patient:
             return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
             
-        from .models import ActionLog
-        ActionLog.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            action=action_name,
-            entity_type=patient.__class__.__name__,
-            entity_id=patient.patient_id,
-            details=details
-        )
+        try:
+            from .models import ActionLog
+            ActionLog.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                action=action_name,
+                entity_type=patient.__class__.__name__,
+                entity_id=patient.patient_id,
+                details=details
+            )
+        except Exception:
+            pass
         return Response({'success': True})
 
 
