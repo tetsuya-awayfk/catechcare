@@ -16,10 +16,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if role and self.user.role != role:
             raise AuthenticationFailed('Wrong credentials, or selected role Please try again.')
 
-        # Rate limiting: Check if there is an active session for the role
-        active_login = LoginLog.objects.filter(user__role=self.user.role, logout_time__isnull=True).exists()
-        if active_login:
-            raise AuthenticationFailed(f'A user with the {self.user.role} role is already logged in.')
+        # Rate limiting: Force logout any previous sessions for this role
+        # This ensures only 1 active session per role while preventing permanent lockouts
+        from django.utils import timezone
+        LoginLog.objects.filter(user__role=self.user.role, logout_time__isnull=True).update(logout_time=timezone.now())
 
         # Create new LoginLog
         LoginLog.objects.create(

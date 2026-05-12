@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       localStorage.setItem('token', access);
       onLogin(user);
     } catch (err: any) {
-      setError('Wrong credentials, or selected role. Please try again.');
+      setError(err.message || 'Wrong credentials, or selected role. Please try again.');
     } finally {
       setIsLoading(false);
     }
