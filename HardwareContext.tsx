@@ -9,6 +9,7 @@ interface HardwareData {
   temp?: string;
   live_temp?: string;
   error?: string;
+  status?: string;
   timestamp: number;
 }
 
@@ -82,19 +83,6 @@ export const HardwareProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       try {
         await port.open({ baudRate: 115200 });
-        
-        // Toggle DTR/RTS to cleanly reset ESP32 upon connection. 
-        // This resolves the SpO2 sensor initialization issue where it hangs on first connect.
-        try {
-          await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-          await new Promise(resolve => setTimeout(resolve, 200));
-          await port.setSignals({ dataTerminalReady: true, requestToSend: true });
-          
-          // Wait 3 seconds for the ESP32 to fully reboot and initialize ALL sensors
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        } catch (signalErr) {
-          console.warn('Failed to set DTR/RTS signals. Continuing anyway.', signalErr);
-        }
       } catch (e: any) {
         if (e.message.includes('already open')) {
            console.log('Port is already open, continuing...');
@@ -111,15 +99,20 @@ export const HardwareProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
       writerRef.current = textEncoder.writable.getWriter();
 
-      setIsConnected(true);
-      setError(null);
-
       // Set up reader
       // @ts-ignore
       const textDecoder = new TextDecoderStream();
       const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
       const reader = textDecoder.readable.getReader();
       readerRef.current = reader;
+
+      // Wait for serial connection to stabilize, then send CONNECT handshake
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await writerRef.current.write('CONNECT\n');
+      console.log('[Serial TX] CONNECT (handshake)');
+
+      setIsConnected(true);
+      setError(null);
 
       let buffer = '';
 
@@ -149,6 +142,7 @@ export const HardwareProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                   temp: data.temp?.toString() || '',
                   live_temp: data.live_temp?.toString() || '',
                   error: data.error?.toString() || '',
+                  status: data.status?.toString() || '',
                   timestamp: Date.now()
                 });
               } catch (e) {
