@@ -10,8 +10,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-    if (!response.ok) throw new Error('Login failed');
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error('Server Crash (500): Database is missing tables! You MUST run "python manage.py migrate" on your server.');
+      }
+      throw new Error(data.detail || 'Login failed');
+    }
+    return data;
   },
 
   async getDashboardSummary() {
