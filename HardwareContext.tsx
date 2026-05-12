@@ -90,8 +90,8 @@ export const HardwareProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           await new Promise(resolve => setTimeout(resolve, 200));
           await port.setSignals({ dataTerminalReady: true, requestToSend: true });
           
-          // Wait 2 seconds for the ESP32 to fully reboot and initialize sensors
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Wait 3 seconds for the ESP32 to fully reboot and initialize ALL sensors
+          await new Promise(resolve => setTimeout(resolve, 3000));
         } catch (signalErr) {
           console.warn('Failed to set DTR/RTS signals. Continuing anyway.', signalErr);
         }

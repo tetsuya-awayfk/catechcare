@@ -86,9 +86,10 @@ const Dashboard: React.FC = () => {
   const handleGetTemp = async () => {
     setGatheringStep('TEMP');
     setLiveTemp('');
-    prevHardwareTimestamp.current = hardwareData?.timestamp || 0;
-    // Small delay to let ESP32 fully finish SpO2 processing before requesting temp
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Wait for ESP32 to fully finish SpO2 processing before requesting temp
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Set timestamp AFTER delay so any leftover SpO2 data is ignored
+    prevHardwareTimestamp.current = Date.now();
     await sendCommand('GET_TEMP');
   };
 
