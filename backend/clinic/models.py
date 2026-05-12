@@ -214,6 +214,7 @@ class LoginLog(models.Model):
     status = models.CharField(max_length=20, default='SUCCESS')
 
     class Meta:
+        db_table = '"audit"."login_logs"'
         ordering = ['-login_time']
 
     def __str__(self):
@@ -228,6 +229,7 @@ class ActionLog(models.Model):
     details = models.TextField(null=True, blank=True)
 
     class Meta:
+        db_table = '"audit"."action_logs"'
         ordering = ['-timestamp']
 
     def __str__(self):
