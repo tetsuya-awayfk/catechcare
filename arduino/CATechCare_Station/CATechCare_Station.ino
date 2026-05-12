@@ -219,6 +219,11 @@ void handleGetSpO2() {
   lcdSpO2 = "Place Finger...";
   updateLCD();
   
+  // Wake up MAX30102 in case it was shut down after a previous reading
+  particleSensor.wakeUp();
+  particleSensor.setup(60, 4, 2, 100, 411, 4096);
+  delay(100);
+  
   // Wait up to 10 seconds for finger
   long startWait = millis();
   bool fingerDetected = false;
@@ -309,6 +314,9 @@ void handleGetSpO2() {
     lcdSpO2 = "--%";
     updateLCD();
   }
+  
+  // Put MAX30102 to sleep to free the shared I2C bus for the MLX90614 temp sensor
+  particleSensor.shutDown();
 }
 
 /**
@@ -316,6 +324,13 @@ void handleGetSpO2() {
  * Reads object temperature from MLX90614 (non-contact IR sensor)
  */
 void handleGetTemp() {
+  // Reinitialize I2C and MLX90614 to recover from any bus conflicts after SpO2 reading
+  Wire.begin();
+  delay(50);
+  if (mlx.begin()) {
+    mlx90614Found = true;
+  }
+  
   if (!mlx90614Found) {
     Serial.println("{\"temp\":\"--\",\"error\":\"MLX90614 not found\"}");
     return;
